@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { playersData } from "./constants/playersData";
 
@@ -49,6 +49,24 @@ function App() {
     }
   }, [totalBalls, totalScore, totalWicket]);
 
+
+  const changeStrike = () => {
+    const newStriker = currentPlayers.nonStriker;
+    const newNonStriker = currentPlayers.striker;
+    setCurrentPlayers({
+      striker: newStriker,
+      nonStriker: newNonStriker,
+    });
+  }
+
+  useEffect(() => {
+    if (totalBalls && totalBalls % 6 === 0) {
+      changeStrike()
+    }
+  }, [totalBalls])
+
+
+
   const throwBall = () => {
     setTotalBalls((prev) => prev + 1);
     const runsGenerated =
@@ -89,18 +107,8 @@ function App() {
       nonStriker: currentPlayers.nonStriker,
     });
 
-    if (
-      totalBalls % 6 === 0 ||
-      runsGenerated === 1 ||
-      runsGenerated === 3 ||
-      runsGenerated === 5
-    ) {
-      const newStriker = currentPlayers.nonStriker;
-      const newNonStriker = currentPlayers.striker;
-      setCurrentPlayers({
-        striker: newStriker,
-        nonStriker: newNonStriker,
-      });
+    if (runsGenerated === 1 || runsGenerated === 3 || runsGenerated === 5) {
+      changeStrike()
     }
 
     setRunScored(runsGenerated);
@@ -123,16 +131,30 @@ function App() {
 
       <div className={styles.playerContainer}>
         <div>
-          <span className={styles.playerName}>{playersData[currentPlayers.striker.playerIndex].name}*</span>
-          <span className={styles.playerScore}>({currentPlayers.striker.playerScore})</span>
+          <span className={styles.playerName}>
+            {playersData[currentPlayers.striker.playerIndex].name}*
+          </span>
+          <span className={styles.playerScore}>
+            ({currentPlayers.striker.playerScore})
+          </span>
         </div>
         <div>
-          <span className={styles.playerName}> {playersData[currentPlayers.nonStriker.playerIndex].name}</span>
-          <span className={styles.playerScore}>({currentPlayers.nonStriker.playerScore})</span>
+          <span className={styles.playerName}>
+            {" "}
+            {playersData[currentPlayers.nonStriker.playerIndex].name}
+          </span>
+          <span className={styles.playerScore}>
+            ({currentPlayers.nonStriker.playerScore})
+          </span>
         </div>
       </div>
 
-      <div className={styles.result}>{ result || `Bengaluru need ${RUNS_TO_WIN - totalScore} runs in ${BALLS_TO_WIN - totalBalls} balls`}</div>
+      <div className={styles.result}>
+        {result ||
+          `Bengaluru need ${RUNS_TO_WIN - totalScore} runs in ${
+            BALLS_TO_WIN - totalBalls
+          } balls`}
+      </div>
       <button onClick={throwBall} disabled={!!result}>
         Bowl
       </button>
